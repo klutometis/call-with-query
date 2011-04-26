@@ -1,5 +1,6 @@
 # -*- org -*-
-* TODO test module
+* DONE test module
+  CLOSED: [2011-04-25 Mon 20:36]
   #+BEGIN_SRC scheme :tangle test-call-with-query-module.scm :shebang #!/usr/bin/env chicken-scheme
     (use debug)
     
@@ -24,6 +25,15 @@
       (display-xml-prolog)
       (display-doctype))
   #+END_SRC
+
+  let's think about this, but indeed do something; the composite of
+  content-type, eol, optional prolog and doc type is not exactly
+  "headers".
+
+  ~(display-content-type+eol+prolog+doctype [prolog [doctype]])~; what
+  about text, cvs, etc.?
+
+  ~(display-content-type-&c. [{text,html,xhtml,csv,...}])~
 * DONE ~call-with-...~ vs. ~with-...~
   CLOSED: [2011-04-25 Mon 20:02]
   - CLOSING NOTE [2011-04-25 Mon 20:03] \\
