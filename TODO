@@ -1,4 +1,29 @@
 # -*- org -*-
+* TODO test module
+  #+BEGIN_SRC scheme :tangle test-call-with-query-module.scm :shebang #!/usr/bin/env chicken-scheme
+    (use debug)
+    
+    (include "call-with-query.scm")
+    (import call-with-query)
+    
+    (call-with-dynamic-fastcgi-query
+     (lambda (query)
+       (display-content-type 'html)
+       (display-eol)
+       (display-xml-prolog)
+       (display-doctype)
+       (display "harrooeutnh")))
+  #+END_SRC
+* TODO ~display-default-headers~
+  something to abstract this?
+
+  #+BEGIN_SRC scheme
+    (define (display-default-headers)
+      (display-content-type)
+      (display-eol)
+      (display-xml-prolog)
+      (display-doctype))
+  #+END_SRC
 * DONE ~call-with-...~ vs. ~with-...~
   CLOSED: [2011-04-25 Mon 20:02]
   - CLOSING NOTE [2011-04-25 Mon 20:03] \\
@@ -134,7 +159,7 @@
     
   #+END_SRC
 
-  #+BEGIN_SRC fundamental
+  #+BEGIN_SRC fundamental :tangle .htaccess
     Order deny,allow
     Allow from all
     

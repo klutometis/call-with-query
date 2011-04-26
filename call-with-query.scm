@@ -1,7 +1,15 @@
 (module
  call-with-query
- (call-with-dynamic-fastcgi-query)
- (import scheme chicken)
+ (call-with-dynamic-fastcgi-query
+  display-eol
+  display-header
+  default-content-type
+  display-content-type
+  default-xml-prolog
+  display-xml-prolog
+  default-doctype
+  display-doctype)
+ (import scheme chicken posix)
 
  (use fastcgi
       call-with-environment-variables
@@ -9,7 +17,8 @@
       uri-common
       alist-lib
       srfi-13
-      format)
+      format
+      debug)
 
  (define (display-eol)
    (display "\r\n"))
@@ -38,6 +47,29 @@
            content-type
            (default-content-type)))))))
 
+ (define default-xml-prolog
+   (make-parameter "<?xml version= \"1.0\" encoding= \"UTF-8\"?>"))
+
+ (define display-xml-prolog
+   (case-lambda
+    (() (display-xml-prolog (default-xml-prolog)))
+    ((xml-prolog) (display xml-prolog))))
+
+ (define default-doctype
+   (make-parameter 'xhtml-1.1))
+
+ (define doctypes
+   '((xhtml-1.1 . "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")))
+
+ (define display-doctype
+   (case-lambda
+    (() (display-doctype (default-doctype)))
+    ((doctype)
+     (display
+      (if (string? doctype)
+          doctype
+          (alist-ref/default doctypes doctype (default-doctype)))))))
+
  (define (call-with-dynamic-fastcgi-query quaerendum)
    (fcgi-dynamic-server-accept-loop
     (lambda (in out err env)
@@ -57,6 +89,7 @@
             void))
           ;; Redirecting current-error-port is actually a pain: it
           ;; obscures Apache logs.
+          #;
           (current-error-port
            (make-output-port
             (lambda (errandum)
