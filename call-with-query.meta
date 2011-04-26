@@ -5,7 +5,6 @@
         fastcgi
         call-with-environment-variables
         ports
-        srfi-39
         uri-common
         alist-lib)
  (author "Peter Danenberg")

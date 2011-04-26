@@ -1,12 +1,15 @@
 (module
  call-with-query
- (call-with-dynmaci-fastcgi-query)
+ (call-with-dynamic-fastcgi-query)
+ (import scheme chicken)
+
  (use fastcgi
       call-with-environment-variables
       ports
-      srfi-39
       uri-common
-      alist-lib)
+      alist-lib
+      srfi-13
+      format)
 
  (define (display-eol)
    (display "\r\n"))
@@ -54,12 +57,11 @@
             void))
           ;; Redirecting current-error-port is actually a pain: it
           ;; obscures Apache logs.
-          #;
           (current-error-port
-          (make-output-port
-          (lambda (errandum)
-          (err errandum))
-          void)))
+           (make-output-port
+            (lambda (errandum)
+              (err errandum))
+            void)))
           (call-with-environment-variables
            (env)
            (lambda ()
