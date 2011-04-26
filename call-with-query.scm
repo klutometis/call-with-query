@@ -20,6 +20,7 @@
       ports
       uri-common
       alist-lib
+      srfi-1
       srfi-13
       format
       debug
