@@ -1,0 +1,129 @@
+# -*- org -*-
+* TODO ~call-with-...~ vs. ~with-...~
+  is ~call-with-...~ appropriate when the procedures takes an
+  argument; ~with-...~ when there is a niladic thunk? [[http://wiki.call-cc.org/man/4/Unit%20ports#string-port-extensions][chicken's
+  string-ports]] seems to imply so; what about r5rs?
+
+  #+BEGIN_EXAMPLE
+  20:47 < klutometis> what's the convention for `call-with-...'
+    vs. `with-...'?
+  20:48 < klutometis> i notice that r5rs uses `with-...' when the thunk
+    is niladic (tautology); and `call-with-...' when the procedure is
+    n-ary, where n >= 1.
+  20:48 < cky> klutometis: call-with-* passes the object to your
+    function. with-* sets a certain parameter to that object.
+  20:49 < klutometis> exemplorum gratia: `with-output-to-file'
+    (niladic), `call-with-values' (n-ary).
+  20:51 < klutometis> cky: it seems a little arbitrary, though, doesn't
+    it? you're still "calling" a thunk with zero arguments; i don't see
+    how one is necessarily `call-with-...' and the other merely
+    `with-...'.
+  20:51 < cky> The call-with is not referring to the procedure. It's
+    referring to how the object is to be stashed.
+  20:52 < cky> call-with-* means object to be passed as arg; with-*
+    means object to be stored in parameter.
+  20:54 < klutometis> cky: i'm currently writing a dynamic-wind
+    abstraction, bizarrely, which does both; i take it the
+    `call-with-...' convention wins out over `call-...'.
+  20:54 < klutometis> sorry, `with-...'.
+  20:54 < cky> Um. If it affects external state (and I consider
+    parameters to be external state), use with-*.
+  20:55 < cky> call-with-* has an expectation that no external state be
+    modified, and everything is contained within the procedure you
+    passed.
+  20:55 < klutometis> yeah; but it passes in arguments, too. this is
+    probably a pathological corner case.
+  20:55 < cky> Yeah. :-/
+  #+END_EXAMPLE
+* TODO ~call-with-dynamic-fastcgi-query~
+  as noted in another project, we had roughly something like this in
+  mind:
+
+  #+BEGIN_QUOTE
+  with something reasonable that binds ~in~, ~out~, ~err~ to the
+  standard ports with string ports; binds ~env~ to the environment;
+  automatically extracts the query-string (if available);
+  automatically extracts the post-data (if available); has some notion
+  of content-type, status, xml-prolog, and doc-type.
+
+  this shit we have now is ridiculous. maybe it can even combine get
+  and post variables into "query":
+
+  ~(call-with-dynamic-fcgi (lambda (query) ...)~?
+
+  let query be '() when we don't have anything?
+  #+END_QUOTE
+
+  #+BEGIN_SRC scheme :tangle test-call-with-fastcgi.scm :shebang #!/usr/bin/env chicken-scheme
+    (use fastcgi
+         call-with-environment-variables
+         ports
+         srfi-39
+         uri-common
+         debug
+         alist-lib)
+    
+    (define (call-with-dynamic-fastcgi-query quaerendum)
+      (fcgi-dynamic-server-accept-loop
+       (lambda (in out err env)
+         (let ((query
+                (append
+                 (form-urldecode
+                  (fcgi-get-post-data in env))
+                 (form-urldecode
+                  (let ((query (env "QUERY_STRING")))
+                    (and (not (string-null? query))
+                         query))))))
+           (parameterize
+            ((current-output-port
+              (make-output-port
+               (lambda (scribendum)
+                 (out scribendum))
+               void))
+             ;; Redirecting current-error-port is actually a pain: it
+             ;; obscures Apache logs.
+             #;
+             (current-error-port
+              (make-output-port
+               (lambda (errandum)
+                 (err errandum))
+               void)))
+            (call-with-environment-variables
+             (env)
+             (lambda ()
+               (quaerendum query))))))))
+    
+    (define (display-eol)
+      (display "\r\n"))
+    
+    (define (display-header header value)
+      (format #t "~a: ~a" header value)
+      (display-eol))
+    
+    (define content-types
+      '((text . "text/plain")
+        (html . "text/html")))
+    
+    (define default-content-type
+      (make-parameter 'text))
+    
+    (define display-content-type
+      (case-lambda
+       (() (display-content-type (default-content-type)))
+       ((content-type)
+        (display-header
+         "Content-type"
+         (if (string? content-type)
+             content-type
+             (alist-ref/default
+              content-types
+              content-type
+              (default-content-type)))))))
+    
+    (call-with-dynamic-fastcgi-query
+     (lambda (query)
+       (display-content-type 'html)
+       (display-eol)
+       (display "harro")))
+    
+  #+END_SRC

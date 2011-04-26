@@ -1,0 +1,14 @@
+((egg "call-with-query.egg")
+ (license "GPL-3")
+ (category web)
+ (needs setup-helper
+        fastcgi
+        call-with-environment-variables
+        ports
+        srfi-39
+        uri-common
+        alist-lib)
+ (author "Peter Danenberg")
+ (synopsis "A reasonable abstraction around (fastcgi) server-invocations: ports, environment, query")
+ (files "call-with-query.scm"
+        "call-with-query.setup"))

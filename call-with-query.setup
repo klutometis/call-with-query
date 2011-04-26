@@ -1,0 +1,8 @@
+;;; -*- Hen -*-
+(include "setup-helper")
+
+(verify-extension-name "call-with-query")
+
+(setup-shared-extension-module
+ 'call-with-query
+ (extension-version 0.1))
