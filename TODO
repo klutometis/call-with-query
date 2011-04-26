@@ -15,7 +15,10 @@
        (display-doctype)
        (display "harrooeutnh")))
   #+END_SRC
-* TODO ~display-default-headers~
+* DONE ~display-default-headers~
+  CLOSED: [2011-04-26 Tue 03:09]
+  - CLOSING NOTE [2011-04-26 Tue 03:09] \\
+    ~display-content-type-&c.~
   something to abstract this?
 
   #+BEGIN_SRC scheme
