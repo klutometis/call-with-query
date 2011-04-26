@@ -1,5 +1,8 @@
 # -*- org -*-
-* TODO ~call-with-...~ vs. ~with-...~
+* DONE ~call-with-...~ vs. ~with-...~
+  CLOSED: [2011-04-25 Mon 20:02]
+  - CLOSING NOTE [2011-04-25 Mon 20:03] \\
+    decided to go with `call-with-...' despite the environmental modifications.
   is ~call-with-...~ appropriate when the procedures takes an
   argument; ~with-...~ when there is a niladic thunk? [[http://wiki.call-cc.org/man/4/Unit%20ports#string-port-extensions][chicken's
   string-ports]] seems to imply so; what about r5rs?
@@ -35,7 +38,10 @@
     probably a pathological corner case.
   20:55 < cky> Yeah. :-/
   #+END_EXAMPLE
-* TODO ~call-with-dynamic-fastcgi-query~
+* DONE ~call-with-dynamic-fastcgi-query~
+  CLOSED: [2011-04-25 Mon 20:03]
+  - CLOSING NOTE [2011-04-25 Mon 20:03] \\
+    reasonable first pass (punting on current-error-port)
   as noted in another project, we had roughly something like this in
   mind:
 
