@@ -1,6 +1,8 @@
 (module
  call-with-query
  (call-with-dynamic-fastcgi-query
+  query-any
+  query-all
   display-eol
   display-header
   default-content-type
@@ -22,6 +24,16 @@
       format
       debug
       matchable)
+
+ (define (query-any query key)
+   (alist-ref/default query key #f))
+ 
+ (define (query-all query key)
+   (fold (lambda (elt acc)
+           (cons (cdr elt) acc))
+         '()
+         (filter (lambda (pair) (equal? (car pair) key))
+                 query)))
 
  (define (display-eol)
    (display "\r\n"))

@@ -1,5 +1,8 @@
 # -*- org -*-
-* TODO should ~query~ be a procedure which responds to keys?
+* DONE should ~query~ be a procedure which responds to keys?
+  CLOSED: [2011-04-26 Tue 16:50]
+  - CLOSING NOTE [2011-04-26 Tue 16:50] \\
+    decided on the convenience functions ~query-any~ and ~query-all~.
   this ~(alist-ref/default query key #f)~ thing is so prevalent as to
   be irritating; what about multiple keys, though? ~(query key)~ would
   have to return an element, in that case, or an improper list;
@@ -25,6 +28,50 @@
   yeah, it's a pain in the ass: either we have to special-case the
   single case; or return a list each time, which leads to an
   irritating ~car~.
+
+  i guess a couple convenience functions aren't out of the question:
+  ~(query-any key) -> {value, #f}~ (or should we do the whole error
+  vs. ~query-any/default~ thing? when would we want to error?),
+  ~(query-all key) -> {values, nil}~; they're basically just wrappers
+  around ~alist-ref~. speaking of which: how should ~alist-lib~ deal
+  with multiple values? ~srfi-69~ gets to punt because of the one key
+  -> value contract; is this something that should be handled
+  "up-stream"? no, let's stick with ~memv~-like semantics.
+
+  #+BEGIN_SRC scheme :tangle test-query-any-query-all.scm :shebang #!/usr/bin/env chicken-scheme
+    (use alist-lib debug test)
+    
+    (define (query-any query key)
+      (alist-ref/default query key #f))
+    
+    (define (query-all query key)
+      (fold (lambda (elt acc)
+              (cons (cdr elt) acc))
+            '()
+            (filter (lambda (pair) (equal? (car pair) key))
+                    query)))
+    
+    (let ((query '((cancel . "Cancel")
+                   (doctor . 1)
+                   (doctor . 13)))
+          (key 'cancel))
+      (test
+       "Multiple values, choose any"
+       1
+       (query-any query 'doctor))
+      (test
+       "Multiple values, choose all"
+       '(13 1)
+       (query-all query 'doctor))
+      (test
+       "No values, choose any"
+       #f
+       (query-any query 'harro))
+      (test
+       "No values, choose all"
+       '()
+       (query-all query 'harro)))
+  #+END_SRC
 * DONE test module
   CLOSED: [2011-04-25 Mon 20:36]
   #+BEGIN_SRC scheme :tangle test-call-with-query-module.scm :shebang #!/usr/bin/env chicken-scheme
