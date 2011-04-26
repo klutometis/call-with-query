@@ -6,7 +6,8 @@
         call-with-environment-variables
         ports
         uri-common
-        alist-lib)
+        alist-lib
+        matchable)
  (author "Peter Danenberg")
  (synopsis "A reasonable abstraction around (fastcgi) server-invocations: ports, environment, query")
  (files "call-with-query.scm"

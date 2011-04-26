@@ -8,7 +8,9 @@
   default-xml-prolog
   display-xml-prolog
   default-doctype
-  display-doctype)
+  display-doctype
+  default-content-type-&c.
+  display-content-type-&c.)
  (import scheme chicken posix)
 
  (use fastcgi
@@ -18,7 +20,8 @@
       alist-lib
       srfi-13
       format
-      debug)
+      debug
+      matchable)
 
  (define (display-eol)
    (display "\r\n"))
@@ -42,10 +45,7 @@
       "Content-type"
       (if (string? content-type)
           content-type
-          (alist-ref/default
-           content-types
-           content-type
-           (default-content-type)))))))
+          (alist-ref content-types content-type))))))
 
  (define default-xml-prolog
    (make-parameter "<?xml version= \"1.0\" encoding= \"UTF-8\"?>"))
@@ -68,7 +68,30 @@
      (display
       (if (string? doctype)
           doctype
-          (alist-ref/default doctypes doctype (default-doctype)))))))
+          (alist-ref doctypes doctype))))))
+
+ (define default-content-type-&c.
+   (make-parameter 'xhtml))
+
+ (define content-type-&cs.
+   `((xhtml
+      . ,(lambda ()
+           (display-content-type 'html)
+           (display-eol)
+           (display-xml-prolog)
+           (display-doctype)))
+     (text
+      . ,(lambda ()
+           (display-content-type 'text)
+           (display-eol)))))
+
+ ;; Content-type, eol, prolog, doctype, etc.
+ (define display-content-type-&c.
+   (case-lambda
+    (() (display-content-type-&c.
+         (default-content-type-&c.)))
+    ((content-type-&c.)
+     ((alist-ref content-type-&cs. content-type-&c.)))))
 
  (define (call-with-dynamic-fastcgi-query quaerendum)
    (fcgi-dynamic-server-accept-loop
