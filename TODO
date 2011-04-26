@@ -133,3 +133,14 @@
        (display "harro")))
     
   #+END_SRC
+
+  #+BEGIN_SRC fundamental
+    Order deny,allow
+    Allow from all
+    
+    Options Indexes ExecCGI
+    
+    <Files ~ "\.scm$">
+        SetHandler fastcgi-script
+    </Files>
+  #+END_SRC
