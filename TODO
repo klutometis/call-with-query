@@ -1,4 +1,30 @@
 # -*- org -*-
+* TODO should ~query~ be a procedure which responds to keys?
+  this ~(alist-ref/default query key #f)~ thing is so prevalent as to
+  be irritating; what about multiple keys, though? ~(query key)~ would
+  have to return an element, in that case, or an improper list;
+  wouldn't it?
+
+  better in that sense to let people deal with the alist? fuck it.
+
+  #+BEGIN_SRC scheme :tangle test-query-proc.scm :shebang #!/usr/bin/env chicken-scheme
+    (use alist-lib debug)
+    
+    (let ((query '((cancel . "Cancel")
+                   (doctor . 1)
+                   (doctor . 13)))
+          (key 'cancel))
+      (debug (alist-ref query key)
+             (fold (lambda (elt acc)
+                     (cons (cdr elt) acc))
+                   '()
+                   (filter (lambda (pair) (equal? (car pair) key))
+                           query))))
+  #+END_SRC
+
+  yeah, it's a pain in the ass: either we have to special-case the
+  single case; or return a list each time, which leads to an
+  irritating ~car~.
 * DONE test module
   CLOSED: [2011-04-25 Mon 20:36]
   #+BEGIN_SRC scheme :tangle test-call-with-query-module.scm :shebang #!/usr/bin/env chicken-scheme
