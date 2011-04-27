@@ -1,4 +1,36 @@
 # -*- org -*-
+* TODO shit: ~call-with-content-type-&c.~ is really a special case of ~call-with-status-&c.~
+  where the status is namely 200 (and which happens to be
+  ~(default-status)~).
+
+  i can't think of a clean way right now to distinguish between both
+  default parameters: status code and content-type.
+
+  ~(display-status-&c. [content-type [status [rest]]])~? that forces
+  us to use, say, ~text~ as the content-type when we want to do a
+  ~301~; but maybe that's not such a bad thing, is it?
+
+  weird, though, that ~content-type~ is the primary argument for a
+  ~display-status~ function; should we fold this into
+  ~display-content-type-&c.~?
+
+  i don't want to have to think about ~200~ when i want, say, a
+  content-type of ~xhtml~, do i? you do with ~mod_python~ and co.,
+  interestingly enough.
+
+  i don't really want to have to think about content-type when i'm
+  doing a status header; nor status when i'm just dishing out
+  content. maybe i should keep them separate, after all, even though
+  there's some multiplication of entities there.
+
+  maybe we can rewrite ~display-content-type-&c.~ to be a
+  specialization of ~display-status~; which happens to pass an
+  argument to the ~200~ status-displayer?
+
+  hmm. that gives you the option of ~(display-status-&c. 200 'text)~;
+  even though that's not exactly analogous to ~(display-status-&c. 301
+  <url>)~. these divergent behaviours and parameter-expectations are
+  going to have to be documented.
 * DONE what about redirect, etc.?
   CLOSED: [2011-04-26 Tue 17:42]
   - CLOSING NOTE [2011-04-26 Tue 17:42] \\
