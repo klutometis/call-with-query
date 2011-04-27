@@ -1,4 +1,52 @@
 # -*- org -*-
+* DONE what about redirect, etc.?
+  CLOSED: [2011-04-26 Tue 17:42]
+  - CLOSING NOTE [2011-04-26 Tue 17:42] \\
+    display-status-&c.
+  should we have some 301 abstractions: maybe a
+  ~(display-status-&c. code . rest)~? ~rest~ would be optional
+  arguments becoming e.g. a ~Location: <(car rest)>~ header.
+
+  #+BEGIN_SRC scheme :tangle test-display-status.scm :shebang #!/usr/bin/env chicken-scheme
+    (use alist-lib test)
+    
+    (include "call-with-query.scm")
+    (import call-with-query)
+    
+    (define default-status (make-parameter 200))
+    
+    (define display-status
+      (case-lambda
+       (() (display-status (default-status)))
+       ((status)
+        (display-header "Status" status))))
+    
+    (define statuses
+      `((301 . ,(lambda (location)
+                  (display-header "Location" location)))))
+    
+    (define display-status-&c.
+      (case-lambda
+       (() (display-status-&c. (default-status)))
+       ((status . rest)
+        (display-status status)
+        (apply (alist-ref/default statuses status void) rest)
+        (display-content-type-&c. 'text))))
+    
+    (test
+     "Default 200 status"
+     "Status: 200\r\nContent-type: text/plain\r\n\r\n"
+     (with-output-to-string
+       (lambda ()
+         (display-status-&c.))))
+    (test
+     "301 redirect"
+     "Status: 301\r\nLocation: http://example.com\r\nContent-type: text/plain\r\n\r\n"
+     (with-output-to-string
+       (lambda ()
+         (display-status-&c. 301 "http://example.com"))))
+    
+  #+END_SRC
 * DONE should ~query~ be a procedure which responds to keys?
   CLOSED: [2011-04-26 Tue 16:50]
   - CLOSING NOTE [2011-04-26 Tue 16:50] \\

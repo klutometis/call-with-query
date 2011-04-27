@@ -5,14 +5,21 @@
   query-all
   display-eol
   display-header
+  content-types
   default-content-type
   display-content-type
   default-xml-prolog
   display-xml-prolog
+  doctypes
   default-doctype
   display-doctype
+  content-type-&cs.
   default-content-type-&c.
-  display-content-type-&c.)
+  display-content-type-&c.
+  default-status
+  display-status
+  statuses
+  display-status-&c.)
  (import scheme chicken posix)
 
  (use fastcgi
@@ -105,6 +112,26 @@
          (default-content-type-&c.)))
     ((content-type-&c.)
      ((alist-ref content-type-&cs. content-type-&c.)))))
+
+(define default-status (make-parameter 200))
+
+(define display-status
+  (case-lambda
+   (() (display-status (default-status)))
+   ((status)
+    (display-header "Status" status))))
+
+(define statuses
+  `((301 . ,(lambda (location)
+              (display-header "Location" location)))))
+
+(define display-status-&c.
+  (case-lambda
+   (() (display-status-&c. (default-status)))
+   ((status . rest)
+    (display-status status)
+    (apply (alist-ref/default statuses status void) rest)
+    (display-content-type-&c. 'text))))
 
  (define (call-with-dynamic-fastcgi-query quaerendum)
    (fcgi-dynamic-server-accept-loop
