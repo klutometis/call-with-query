@@ -113,30 +113,30 @@
     ((content-type-&c.)
      ((alist-ref content-type-&cs. content-type-&c.)))))
 
-(define default-status
-  (make-parameter 200))
+ (define default-status
+   (make-parameter 200))
 
-(define display-status
-  (case-lambda
-   (() (display-status (default-status)))
-   ((status)
-    (display-header "Status" status))))
+ (define display-status
+   (case-lambda
+    (() (display-status (default-status)))
+    ((status)
+     (display-header "Status" status))))
 
-(define statuses
-  `((301
-     . ,(lambda (location)
-          (display-header "Location" location)))))
+ (define statuses
+   `((301
+      . ,(lambda (location)
+           (display-header "Location" location)))))
 
-(define display-status-&c.
-  (case-lambda
-   (()
-    (display-status-&c. (default-status)))
-   ((status)
-    (display-status-&c. status (default-content-type)))
-   ((status content-type . rest)
-    (display-status status)
-    (apply (alist-ref/default statuses status void) rest)
-    (display-content-type-&c. content-type))))
+ (define display-status-&c.
+   (case-lambda
+    (()
+     (display-status-&c. (default-status)))
+    ((status)
+     (display-status-&c. status (default-content-type)))
+    ((status content-type . rest)
+     (display-status status)
+     (apply (alist-ref/default statuses status void) rest)
+     (display-content-type-&c. content-type))))
 
  (define (call-with-dynamic-fastcgi-query quaerendum)
    (fcgi-dynamic-server-accept-loop
@@ -163,7 +163,7 @@
             (lambda (errandum)
               (err errandum))
             void)))
-          (call-with-environment-variables
-           (env)
-           (lambda ()
-             (quaerendum query)))))))))
+         (call-with-environment-variables
+          (env)
+          (lambda ()
+            (quaerendum query)))))))))
