@@ -123,23 +123,20 @@
     (display-header "Status" status))))
 
 (define statuses
-  `((200
-     . ,(lambda content-type
-          (let ((content-type (if (null? content-type)
-                                  (default-content-type)
-                                  (car content-type))))
-            (display-content-type-&c. content-type))))
-    (301
+  `((301
      . ,(lambda (location)
-          (display-header "Location" location)
-          (display-content-type-&c. 'text)))))
+          (display-header "Location" location)))))
 
 (define display-status-&c.
   (case-lambda
-   (() (display-status-&c. (default-status)))
-   ((status . rest)
+   (()
+    (display-status-&c. (default-status)))
+   ((status)
+    (display-status-&c. status (default-content-type)))
+   ((status content-type . rest)
     (display-status status)
-    (apply (alist-ref/default statuses status void) rest))))
+    (apply (alist-ref/default statuses status void) rest)
+    (display-content-type-&c. content-type))))
 
  (define (call-with-dynamic-fastcgi-query quaerendum)
    (fcgi-dynamic-server-accept-loop

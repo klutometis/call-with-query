@@ -8,6 +8,7 @@
         uri-common
         alist-lib
         matchable)
+ (test-depends test)
  (author "Peter Danenberg")
  (synopsis "A reasonable abstraction around (fastcgi) server-invocations: ports, environment, query")
  (files "call-with-query.scm"

@@ -1,5 +1,11 @@
 # -*- org -*-
-* TODO shit: ~call-with-content-type-&c.~ is really a special case of ~call-with-status-&c.~
+* DONE shit: ~call-with-content-type-&c.~ is really a special case of ~call-with-status-&c.~
+  CLOSED: [2011-04-26 Tue 18:37]
+  - CLOSING NOTE [2011-04-26 Tue 18:37] \\
+    that's fine; users calling ~call-with-status-&c.~ with arguments will
+    have to think about the content-type, though.
+    
+    why is this necessary?
   where the status is namely 200 (and which happens to be
   ~(default-status)~).
 
@@ -31,6 +37,10 @@
   even though that's not exactly analogous to ~(display-status-&c. 301
   <url>)~. these divergent behaviours and parameter-expectations are
   going to have to be documented.
+
+  maybe you should have to think about the content type when doing a
+  redirect; maybe i'm masking too many details from the user. that
+  would certainly simplify the api.
 * DONE what about redirect, etc.?
   CLOSED: [2011-04-26 Tue 17:42]
   - CLOSING NOTE [2011-04-26 Tue 17:42] \\
