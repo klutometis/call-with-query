@@ -1,6 +1,9 @@
 # -*- org -*-
 * DONE shit: ~call-with-content-type-&c.~ is really a special case of ~call-with-status-&c.~
-  CLOSED: [2011-04-26 Tue 18:37]
+  CLOSED: [2011-04-26 Tue 18:50]
+  - CLOSING NOTE [2011-04-26 Tue 18:50] \\
+    it's a pain in the ass to have to think about content type for certain
+    "content-less" status like 301; but it allows for a consistent api.
   - CLOSING NOTE [2011-04-26 Tue 18:37] \\
     that's fine; users calling ~call-with-status-&c.~ with arguments will
     have to think about the content-type, though.
