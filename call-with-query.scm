@@ -242,6 +242,11 @@
              ;;
              ;; Should we, in addition to query, specify an
              ;; environment parameter like fastcgi?
+             ;;
+             ;; Or should we flatten like query (like a hash-table),
+             ;; testing for membership and deleting redundant
+             ;; key-value pairs? We can't do that because of multiple
+             ;; values (e.g. multiselect).
              (map
               (match-lambda ((key . value)
                              (cons (env-string->symbol key)
