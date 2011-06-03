@@ -1,4 +1,8 @@
 # -*- org -*-
+* TODO cookies
+  =(set-cookie! key value #!key comment domain max-age path secure
+  version)=; cookie-values are folded into the client parameters (soon
+  to be simply parameters?).
 * DONE segregation of server and client parameters
   CLOSED: [2011-06-02 Thu 21:46]
   - CLOSING NOTE [2011-06-02 Thu 21:46] \\
