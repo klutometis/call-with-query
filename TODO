@@ -1,5 +1,21 @@
 # -*- org -*-
-* TODO redirect abstractions, etc.?
+* TODO segregation of server and client parameters
+  with promiscuous and selective accessors, viz.: =query-{any,all}=,
+  =query-server-{any,all}=, =query-client-{any,all}=. =server= is the
+  server-supplied things like =HTTP_USER=, =HTTP_PASSWD=, etc.;
+  =client=: post, get and cookies parameters.
+
+  Should cookies have their own =query-cookie-{any,all}=? Maybe; but
+  cookies are falsifiable just like get and post parameters, aren't
+  they?
+
+  Oh, weird: =$Paths= are associated with individual key-value
+  pairs. Oh, well.
+
+  No, let's fold cookies into =client= for now; until we find a
+  use-case for segregation.
+* DONE redirect abstractions, etc.?
+  CLOSED: [2011-06-02 Thu 21:21]
 * DONE shit: ~call-with-content-type-&c.~ is really a special case of ~call-with-status-&c.~
   CLOSED: [2011-04-26 Tue 18:50]
   - CLOSING NOTE [2011-04-26 Tue 18:50] \\
