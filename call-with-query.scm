@@ -70,6 +70,7 @@
       alist-lib
       srfi-1
       srfi-13
+      srfi-14
       format
       debug
       matchable
@@ -247,11 +248,36 @@
              ;; testing for membership and deleting redundant
              ;; key-value pairs? We can't do that because of multiple
              ;; values (e.g. multiselect).
+             ;;
+             ;; Maybe query could distinguish between client and
+             ;; server parameters; query-{all,any} don't care, whereas
+             ;; query-client-{any,all} and query-server-{any,all} are
+             ;; selective. (Not to mention query-cookie-{any,all}; or
+             ;; should we fold this into client? query is quickly
+             ;; becoming an opaque composite.)
+             ;;
+             ;; For the promiscuous accessors, we have a precedence
+             ;; problem: environment -> cookie -> post -> get?
              (map
               (match-lambda ((key . value)
                              (cons (env-string->symbol key)
                                    value)))
-              (env))             (form-urldecode
+              (env))
+             (form-urldecode
+              (let ((cookies
+                     (string-delete
+                      char-set:whitespace
+                      (env "HTTP_COOKIE" ""))))
+                (and (not (string-null? cookies))
+                     cookies)))
+             (form-urldecode
+              (let ((cookies
+                     (string-delete
+                      char-set:whitespace
+                      (env "HTTP_COOKIE2" ""))))
+                (and (not (string-null? cookies))
+                     cookies)))
+             (form-urldecode
               (fcgi-get-post-data in env))
              (form-urldecode
               (let ((query (env "QUERY_STRING")))
