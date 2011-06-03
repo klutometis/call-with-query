@@ -72,7 +72,8 @@
       srfi-13
       format
       debug
-      matchable)
+      matchable
+      regex)
 
  (define (query-any query key)
    (alist-ref/default query key #f))
@@ -221,31 +222,50 @@
      (apply (alist-ref/default statuses status void) rest)
      (display-content-type-&c. content-type))))
 
+ (define (env-string->symbol string)
+   (string->symbol
+    (string-downcase (string-substitute "_" "-" string #t))))
+ 
  (define (call-with-dynamic-fastcgi-query quaerendum)
-   (fcgi-dynamic-server-accept-loop
-    (lambda (in out err env)
-      (let ((query
-             (append
-              (form-urldecode
-               (fcgi-get-post-data in env))
-              (form-urldecode
-               (let ((query (env "QUERY_STRING")))
-                 (and (not (string-null? query))
-                      query))))))
-        (parameterize
-         ((current-output-port
-           (make-output-port
-            (lambda (scribendum)
-              (out scribendum))
-            void))
-          ;; Redirecting current-error-port is actually a pain: it
-          ;; obscures Apache logs.
-          #;
-          (current-error-port
-           (make-output-port
-            (lambda (errandum)
-              (err errandum))
-            void)))
+  (fcgi-dynamic-server-accept-loop
+   (lambda (in out err env)
+     (let ((query
+            (append
+             ;; This is dangerous: we're folding the
+             ;; environment-parameters into the query-parameters;
+             ;; which means that a user can fuck with the environment
+             ;; (e.g. "REMOTE_PASSWD").
+             ;;
+             ;; The environment-parameters happen to come first, which
+             ;; means that alist-ref will catch them instead of the
+             ;; query-parameters; but is there the possibility of screwing up?
+             ;;
+             ;; Should we, in addition to query, specify an
+             ;; environment parameter like fastcgi?
+             (map
+              (match-lambda ((key . value)
+                             (cons (env-string->symbol key)
+                                   value)))
+              (env))             (form-urldecode
+              (fcgi-get-post-data in env))
+             (form-urldecode
+              (let ((query (env "QUERY_STRING")))
+                (and (not (string-null? query))
+                     query))))))
+       (parameterize
+        ((current-output-port
+          (make-output-port
+           (lambda (scribendum)
+             (out scribendum))
+           void))
+         ;; Redirecting current-error-port is actually a pain: it
+         ;; obscures Apache logs.
+         #;
+         (current-error-port
+         (make-output-port
+         (lambda (errandum)
+         (err errandum))
+         void)))
          (call-with-environment-variables
           (env)
           (lambda ()
