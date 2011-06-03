@@ -1,5 +1,9 @@
 # -*- org -*-
-* TODO segregation of server and client parameters
+* DONE segregation of server and client parameters
+  CLOSED: [2011-06-02 Thu 21:46]
+  - CLOSING NOTE [2011-06-02 Thu 21:46] \\
+    Damn: we had this elegant environment mechanism for server parameters;
+    might well return to that!
   with promiscuous and selective accessors, viz.: =query-{any,all}=,
   =query-server-{any,all}=, =query-client-{any,all}=. =server= is the
   server-supplied things like =HTTP_USER=, =HTTP_PASSWD=, etc.;
@@ -14,6 +18,9 @@
 
   No, let's fold cookies into =client= for now; until we find a
   use-case for segregation.
+
+  We already have a mechanism for this, by the way:
+  =call-with-environment-variables=; oh, shit: should we keep this?
 * DONE redirect abstractions, etc.?
   CLOSED: [2011-06-02 Thu 21:21]
 * DONE shit: ~call-with-content-type-&c.~ is really a special case of ~call-with-status-&c.~

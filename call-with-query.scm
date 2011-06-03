@@ -1,6 +1,11 @@
 (module
  call-with-query
  (call-with-dynamic-fastcgi-query
+  query->alist
+  query-client-any
+  query-client-all
+  query-server-any
+  query-server-all
   query-any
   query-all
   display-eol
@@ -64,7 +69,6 @@
  (import scheme chicken posix)
 
  (use fastcgi
-      call-with-environment-variables
       ports
       uri-common
       alist-lib
@@ -74,17 +78,55 @@
       format
       debug
       matchable
-      regex)
+      regex
+      defstruct)
 
- (define (query-any query key)
-   (alist-ref/default query key #f))
- 
- (define (query-all query key)
-   (fold (lambda (elt acc)
-           (cons (cdr elt) acc))
-         '()
-         (filter (lambda (pair) (equal? (car pair) key))
-                 query)))
+ (defstruct
+   query
+   server
+   client)
+
+ (define status-continue 100)
+ (define status-switching-protocols 101)
+ (define status-ok 200)
+ (define status-created 201)
+ (define status-accepted 202)
+ (define status-non-authoritative-information 203)
+ (define status-no-content 204)
+ (define status-reset-content 205)
+ (define status-partial-content 206)
+ (define status-multiple-choices 300)
+ (define status-moved-permanently 301)
+ (define status-found 302)
+ (define status-see-other 303)
+ (define status-not-modified 304)
+ (define status-use-proxy 305)
+ (define status-unused 306)
+ (define status-temporary-redirect 307)
+ (define status-bad-request 400)
+ (define status-unauthorized 401)
+ (define status-payment-required 402)
+ (define status-forbidden 403)
+ (define status-not-found 404)
+ (define status-method-not-allowed 405)
+ (define status-not-acceptable 406)
+ (define status-proxy-authentication-required 407)
+ (define status-request-timeout 408)
+ (define status-conflict 409)
+ (define status-gone 410)
+ (define status-length-required 411)
+ (define status-precondition-failed 412)
+ (define status-request-entity-too-large 413)
+ (define status-request-uri-too-long 414)
+ (define status-unsupported-media-type 415)
+ (define status-requested-range-not-satisfiable 416)
+ (define status-expectation-failed 417)
+ (define status-internal-server-error 500)
+ (define status-not-implemented 501)
+ (define status-bad-gateway 502)
+ (define status-service-unavailable 503)
+ (define status-gateway-timeout 504)
+ (define status-http-version-not-supported 505)
 
  (define (display-eol)
    (display "\r\n"))
@@ -156,48 +198,6 @@
     ((content-type-&c.)
      ((alist-ref content-type-&cs. content-type-&c.)))))
 
- (define status-continue 100)
- (define status-switching-protocols 101)
- (define status-ok 200)
- (define status-created 201)
- (define status-accepted 202)
- (define status-non-authoritative-information 203)
- (define status-no-content 204)
- (define status-reset-content 205)
- (define status-partial-content 206)
- (define status-multiple-choices 300)
- (define status-moved-permanently 301)
- (define status-found 302)
- (define status-see-other 303)
- (define status-not-modified 304)
- (define status-use-proxy 305)
- (define status-unused 306)
- (define status-temporary-redirect 307)
- (define status-bad-request 400)
- (define status-unauthorized 401)
- (define status-payment-required 402)
- (define status-forbidden 403)
- (define status-not-found 404)
- (define status-method-not-allowed 405)
- (define status-not-acceptable 406)
- (define status-proxy-authentication-required 407)
- (define status-request-timeout 408)
- (define status-conflict 409)
- (define status-gone 410)
- (define status-length-required 411)
- (define status-precondition-failed 412)
- (define status-request-entity-too-large 413)
- (define status-request-uri-too-long 414)
- (define status-unsupported-media-type 415)
- (define status-requested-range-not-satisfiable 416)
- (define status-expectation-failed 417)
- (define status-internal-server-error 500)
- (define status-not-implemented 501)
- (define status-bad-gateway 502)
- (define status-service-unavailable 503)
- (define status-gateway-timeout 504)
- (define status-http-version-not-supported 505)
-
  (define default-status
    (make-parameter status-ok))
 
@@ -223,6 +223,38 @@
      (apply (alist-ref/default statuses status void) rest)
      (display-content-type-&c. content-type))))
 
+ (define (query-client-any query key)
+   (alist-any (query-client query) key))
+
+ (define (query-client-all query key)
+   (alist-all (query-client query) key))
+
+ (define (query-server-all query key)
+   (alist-any (query-server query) key))
+
+ (define (query-server-any query key)
+   (alist-all (query-server query) key))
+
+ (define (query-any query key)
+   (alist-any (append (query-server query)
+                      (query-client query))
+              key))
+
+ (define (query-all query key)
+   (alist-all (append (query-server query)
+                      (query-client query))
+              key))
+
+ (define (alist-any alist key)
+   (alist-ref/default alist key #f))
+ 
+ (define (alist-all alist key)
+   (fold (lambda (elt acc)
+           (cons (cdr elt) acc))
+         '()
+         (filter (lambda (pair) (equal? (car pair) key))
+                 alist)))
+
  (define (env-string->symbol string)
    (string->symbol
     (string-downcase (string-substitute "_" "-" string #t))))
@@ -230,74 +262,44 @@
  (define (call-with-dynamic-fastcgi-query quaerendum)
   (fcgi-dynamic-server-accept-loop
    (lambda (in out err env)
-     (let ((query
-            (append
-             ;; This is dangerous: we're folding the
-             ;; environment-parameters into the query-parameters;
-             ;; which means that a user can fuck with the environment
-             ;; (e.g. "REMOTE_PASSWD").
-             ;;
-             ;; The environment-parameters happen to come first, which
-             ;; means that alist-ref will catch them instead of the
-             ;; query-parameters; but is there the possibility of screwing up?
-             ;;
-             ;; Should we, in addition to query, specify an
-             ;; environment parameter like fastcgi?
-             ;;
-             ;; Or should we flatten like query (like a hash-table),
-             ;; testing for membership and deleting redundant
-             ;; key-value pairs? We can't do that because of multiple
-             ;; values (e.g. multiselect).
-             ;;
-             ;; Maybe query could distinguish between client and
-             ;; server parameters; query-{all,any} don't care, whereas
-             ;; query-client-{any,all} and query-server-{any,all} are
-             ;; selective. (Not to mention query-cookie-{any,all}; or
-             ;; should we fold this into client? query is quickly
-             ;; becoming an opaque composite.)
-             ;;
-             ;; For the promiscuous accessors, we have a precedence
-             ;; problem: environment -> cookie -> post -> get?
-             (map
-              (match-lambda ((key . value)
-                             (cons (env-string->symbol key)
-                                   value)))
-              (env))
-             (form-urldecode
+     (let ((environment
+            (map
+             (match-lambda ((key . value)
+                            (cons (env-string->symbol key)
+                                  value)))
+             (env)))
+           (cookies
+            (form-urldecode
               (let ((cookies
                      (string-delete
                       char-set:whitespace
                       (env "HTTP_COOKIE" ""))))
                 (and (not (string-null? cookies))
-                     cookies)))
+                     cookies))))
+           (cookies2
              (form-urldecode
               (let ((cookies
                      (string-delete
                       char-set:whitespace
                       (env "HTTP_COOKIE2" ""))))
                 (and (not (string-null? cookies))
-                     cookies)))
-             (form-urldecode
-              (fcgi-get-post-data in env))
-             (form-urldecode
+                     cookies))))
+           (post-data
+            (form-urldecode
+              (fcgi-get-post-data in env)))
+           (query
+            (form-urldecode
               (let ((query (env "QUERY_STRING")))
                 (and (not (string-null? query))
-                     query))))))
+                     query))))) 
        (parameterize
         ((current-output-port
           (make-output-port
            (lambda (scribendum)
              (out scribendum))
-           void))
-         ;; Redirecting current-error-port is actually a pain: it
-         ;; obscures Apache logs.
-         #;
-         (current-error-port
-         (make-output-port
-         (lambda (errandum)
-         (err errandum))
-         void)))
-         (call-with-environment-variables
-          (env)
-          (lambda ()
-            (quaerendum query)))))))))
+           void)))
+        (quaerendum (make-query server: environment
+                                client: (append cookies
+                                                cookies2
+                                                post-data
+                                                query)))))))))
