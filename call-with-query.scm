@@ -223,37 +223,68 @@
      (apply (alist-ref/default statuses status void) rest)
      (display-content-type-&c. content-type))))
 
- (define (query-client-any query key)
-   (alist-any (query-client query) key))
+ (define query-client-any
+   (case-lambda
+    ((query key)
+     (alist-any (query-client query) key))
+    ((query key default)
+     (alist-any (query-client query) key default))))
 
- (define (query-client-all query key)
-   (alist-all (query-client query) key))
+ (define query-client-all
+   (case-lambda
+    ((query key)
+     (alist-all (query-client query) key))
+    ((query key default)
+     (alist-all (query-client query) key default))))
 
- (define (query-server-all query key)
-   (alist-any (query-server query) key))
+ (define query-server-any
+   (case-lambda
+    ((query key)
+     (alist-any (query-server query) key))
+    ((query key default)
+     (alist-any (query-server query) key default))))
 
- (define (query-server-any query key)
-   (alist-all (query-server query) key))
+ (define query-server-all
+   (case-lambda
+    ((query key)
+     (alist-all (query-server query) key))
+    ((query key default)
+     (alist-all (query-server query) key default))))
 
- (define (query-any query key)
-   (alist-any (append (query-server query)
-                      (query-client query))
-              key))
+ (define (query-promiscuous query)
+   (append-map cdr (query->alist query)))
 
- (define (query-all query key)
-   (alist-all (append (query-server query)
-                      (query-client query))
-              key))
+ (define query-any
+   (case-lambda
+    ((query key)
+     (alist-any (query-promiscuous query) key))
+    ((query key default)
+     (alist-any (query-promiscuous query) key default))))
 
- (define (alist-any alist key)
-   (alist-ref/default alist key #f))
+ (define query-all
+   (case-lambda
+    ((query key)
+     (alist-all (query-promiscuous query) key))
+    ((query key default)
+     (alist-all (query-promiscuous query) key default))))
+
+ (define alist-any
+   (case-lambda
+    ((alist key)
+     (alist-any alist key #f))
+    ((alist key default)
+     (alist-ref/default alist key #f))))
  
- (define (alist-all alist key)
-   (fold (lambda (elt acc)
-           (cons (cdr elt) acc))
-         '()
-         (filter (lambda (pair) (equal? (car pair) key))
-                 alist)))
+ (define alist-all
+   (case-lambda
+    ((alist key)
+     (alist-all alist key '()))
+    ((alist key default)
+     (fold (lambda (elt acc)
+             (cons (cdr elt) acc))
+           default
+           (filter (lambda (pair) (equal? (car pair) key))
+                   alist)))))
 
  (define (env-string->symbol string)
    (string->symbol
