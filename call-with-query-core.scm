@@ -5,11 +5,43 @@
 @(email "pcd@roxygen.org")
 @(noop)
 
+@(heading "Motivation")
+
+@(text "Using FastCGI is relatively pain-in-the-ass; take this
+contrived example, for instance, where we'd like create a server that
+exports a database (given as a post-parameter) as JSON:")
+
+@(source
+  (fcgi-dynamic-server-accept-loop
+   (lambda (in out err env)
+     (out "Content-type: application/json\r\n\r\n")
+     (let* ((post-data (form-urldecode (fcgi-get-post-data in env)))
+            (database (alist-ref/default post-data 'database (default-database))))
+       (out (with-output-to-string
+              (lambda ()
+                (json-write (database->json database)))))))))
+
+@(text "With {{call-with-query}}, however, we can do something like this:")
+
+@(source
+  (call-with-dynamic-fastcgi-query
+   (lambda (query)
+     (display-content-type-&c. 'json)
+     (json-write (database->json (query-any query 'database (default-database)))))))
+
+@(text "Anything written to stdout appears in the request;
+anything to stdout goes in the server logs; while 
+{{display-content-type-&c.}} takes care of the HTTP headers.")
+
+@(heading "Documentation")
+
 (define-record-and-printer query
   @("Data structure to hold the query."
     (server "Server variables, e.g. environment")
-    (client "Client variables, e.g. {get,post,cookie}-parameters"))
+    (client "Client variables, e.g. {get,post,cookie}-parameters")
+    (@internal))
   server client)
+
 
 (define status-continue 100)
 (define status-switching-protocols 101)
@@ -62,7 +94,8 @@
 
 (define content-types
   '((text . "text/plain")
-    (html . "text/html")))
+    (html . "text/html")
+    (json . "application/json")))
 
 (define default-content-type
   (make-parameter 'text))
@@ -111,6 +144,10 @@
           (display-xml-prolog)
           (display-doctype)))
     (text
+     . ,(lambda ()
+          (display-content-type 'text)
+          (display-eol)))
+    (json
      . ,(lambda ()
           (display-content-type 'text)
           (display-eol)))))
