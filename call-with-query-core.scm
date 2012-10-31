@@ -153,7 +153,7 @@
 corresponding to the key."
     (key "The key whose value to extract")
     (default "A default value if {{key}} doesn't exist")
-    (@return "object"))
+    (@to "object"))
   (case-lambda
    ((query key)
     (alist-any (query-client query) key))
@@ -165,7 +165,7 @@ corresponding to the key."
 corresponding to the key."
     (key "The key whose value to extract")
     (default "A default value if {{key}} doesn't exist")
-    (@return "list"))
+    (@to "list"))
   (case-lambda
    ((query key)
     (alist-all (query-client query) key))
@@ -177,7 +177,7 @@ corresponding to the key."
 environment-variable) corresponding to the key."
     (key "The key whose value to extract")
     (default "A default value if {{key}} doesn't exist")
-    (@return "object"))
+    (@to "object"))
   (case-lambda
    ((query key)
     (alist-any (query-server query) key))
@@ -189,7 +189,7 @@ environment-variable) corresponding to the key."
  environment-variables) corresponding to the key."
     (key "The key whose value to extract")
     (default "A default value if {{key}} doesn't exist")
-    (@return "list"))
+    (@to "list"))
   (case-lambda
    ((query key)
     (alist-all (query-server query) key))
@@ -204,7 +204,7 @@ environment-variable) corresponding to the key."
   @("Return the first client or server parameter (see above) corresponding to the key."
     (key "The key whose value to extract")
     (default "A default value if {{key}} doesn't exist")
-    (@return "object"))
+    (@to "object"))
   (case-lambda
    ((query key)
     (alist-any (query-promiscuous query) key))
@@ -215,7 +215,7 @@ environment-variable) corresponding to the key."
   @("Return a list of client or server parameters (see above) corresponding to the key."
     (key "The key whose value to extract")
     (default "A default value if {{key}} doesn't exist")
-    (@return "list"))
+    (@to "list"))
   (case-lambda
    ((query key)
     (alist-all (query-promiscuous query) key))
