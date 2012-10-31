@@ -298,6 +298,11 @@ request."
              (make-output-port
               (lambda (scribendum)
                 (out scribendum))
+              void))
+            (current-error-port
+             (make-output-port
+              (lambda (errandum)
+                (err errandum))
               void)))
          (quaerendum (make-query server: environment
                                  client: (append cookies
