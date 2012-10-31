@@ -5,7 +5,7 @@
 @(email "pcd@roxygen.org")
 @(noop)
 
-(defstruct query
+(define-record-and-printer query
   @("Data structure to hold the query."
     (server "Server variables, e.g. environment")
     (client "Client variables, e.g. {get,post,cookie}-parameters"))
@@ -197,7 +197,8 @@ environment-variable) corresponding to the key."
     (alist-all (query-server query) key default))))
 
 (define (query-promiscuous query)
-  (append-map cdr (query->alist query)))
+  #;(append-map cdr (query->alist query))
+  (append (query-server query) (query-client query)))
 
 (define query-any
   @("Return the first client or server parameter (see above) corresponding to the key."
@@ -304,8 +305,8 @@ request."
               (lambda (errandum)
                 (err errandum))
               void)))
-         (quaerendum (make-query server: environment
-                                 client: (append cookies
-                                                 cookies2
-                                                 post-data
-                                                 query))))))))
+         (quaerendum (make-query environment
+                                 (append cookies
+                                         cookies2
+                                         post-data
+                                         query))))))))

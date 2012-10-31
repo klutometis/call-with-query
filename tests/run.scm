@@ -18,10 +18,10 @@
 
 (test-group
  "Query-lookup"
- (let ((query (make-query server: '()
-                          client: '((cancel . "Cancel")
-                                    (doctor . 1)
-                                    (doctor . 13))))
+ (let ((query (make-query '()
+                          '((cancel . "Cancel")
+                            (doctor . 1)
+                            (doctor . 13))))
        (key 'cancel))
    (test
     "Multiple values, choose any"

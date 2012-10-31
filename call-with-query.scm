@@ -2,7 +2,7 @@
  call-with-query
  (call-with-dynamic-fastcgi-query
   make-query
-  query->alist
+  ;; query->alist
   query-client-any
   query-client-all
   query-server-any
@@ -70,17 +70,18 @@
 
  (import scheme chicken posix)
 
- (use fastcgi
+ (use alist-lib
+      debug
+      define-record-and-printer
+      defstruct
+      fastcgi
+      format
+      matchable
       ports
-      uri-common
-      alist-lib
+      regex
       srfi-1
       srfi-13
       srfi-14
-      format
-      debug
-      matchable
-      regex
-      defstruct)
+      uri-common)
 
  (include "call-with-query-core.scm"))
