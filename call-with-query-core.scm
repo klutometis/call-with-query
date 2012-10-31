@@ -95,7 +95,8 @@ anything to stdout goes in the server logs; while
 (define content-types
   '((text . "text/plain")
     (html . "text/html")
-    (json . "application/json")))
+    (json . "application/json")
+    (png . "image/png")))
 
 (define default-content-type
   (make-parameter 'text))
@@ -149,7 +150,11 @@ anything to stdout goes in the server logs; while
           (display-eol)))
     (json
      . ,(lambda ()
-          (display-content-type 'text)
+          (display-content-type 'json)
+          (display-eol)))
+    (png
+     . ,(lambda ()
+          (display-content-type 'png)
           (display-eol)))))
 
 ;; Content-type, eol, prolog, doctype, etc.
