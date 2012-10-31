@@ -1,15 +1,16 @@
 ((egg "call-with-query.egg")
  (license "GPL-3")
  (category web)
- (needs setup-helper
-        fastcgi
+ (needs alist-lib
+        args
         call-with-environment-variables
-        ports
-        uri-common
-        alist-lib
-        matchable)
+        cock
+        fastcgi
+        format
+        matchable
+        regex
+        setup-helper
+        uri-common)
  (test-depends test)
  (author "Peter Danenberg")
- (synopsis "A reasonable abstraction around (fastcgi) server-invocations: ports, environment, query")
- (files "call-with-query.scm"
-        "call-with-query.setup"))
+ (synopsis "A reasonable abstraction around e.g. fastcgi server-invocations: ports, environment, query"))
