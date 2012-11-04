@@ -123,7 +123,8 @@ anything to stdout goes in the server logs; while
   (make-parameter 'xhtml-1.1))
 
 (define doctypes
-  '((xhtml-1.1 . "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")))
+  '((xhtml-1.1 . "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")
+    (html5 . "<!DOCTYPE html>")))
 
 (define display-doctype
   (case-lambda
@@ -144,6 +145,11 @@ anything to stdout goes in the server logs; while
           (display-eol)
           (display-xml-prolog)
           (display-doctype)))
+    (html
+     . ,(lambda ()
+          (display-content-type 'html)
+          (display-eol)
+          (display-doctype 'html5)))
     (text
      . ,(lambda ()
           (display-content-type 'text)
