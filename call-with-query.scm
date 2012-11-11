@@ -76,9 +76,9 @@
       defstruct
       fastcgi
       format
+      irregex
       matchable
       ports
-      regex
       srfi-1
       srfi-13
       srfi-14
