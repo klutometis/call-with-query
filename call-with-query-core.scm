@@ -289,7 +289,7 @@ environment-variable) corresponding to the key."
 
 (define (env-string->symbol string)
   (string->symbol
-   (string-downcase (irregex-replace/all "_" string "-" string))))
+   (string-downcase (irregex-replace/all "_" string "-"))))
 
 (define (call-with-dynamic-fastcgi-query quaerendum)
   @("Start a dynamic FastCGI server where output is bound to stdout;
