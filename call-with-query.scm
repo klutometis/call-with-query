@@ -3,8 +3,10 @@
  (call-with-dynamic-fastcgi-query
   make-query
   ;; query->alist
+  query-client
   query-client-any
   query-client-all
+  query-server
   query-server-any
   query-server-all
   query-any
