@@ -245,7 +245,7 @@ environment-variable) corresponding to the key."
 
 (define query-server-all
   @("Return a list of client parameters (e.g.
- environment-variables) corresponding to the key."
+environment-variables) corresponding to the key."
     (key "The key whose value to extract")
     (default "A default value if {{key}} doesn't exist")
     (@to "list"))
