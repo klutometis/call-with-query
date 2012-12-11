@@ -138,6 +138,8 @@ anything to stderr goes in the server logs; while {{display-content-type-&c.}}
   (make-parameter 'xhtml))
 
 (define content-type-&cs.
+  @("Recognized content-type-&cs. are {{xhtml}}, {{html}}, {{text}},{{json}}, {{png}}."
+    (@internal))
   `((xhtml
      . ,(lambda ()
           (display-content-type 'html)
@@ -164,6 +166,11 @@ anything to stderr goes in the server logs; while {{display-content-type-&c.}}
 
 ;; Content-type, eol, prolog, doctype, etc.
 (define display-content-type-&c.
+  @("Write the content-type headers and e.g. XML prolog (if
+necessary); do not, however, write the status (see {{display-status}}
+and {{display-status-&c.}})."
+    "Valid content-types are {{xhtml}}, {{html}}, {{text}}, {{json}},{{png}}."
+    (content-type-&c. "The content-type-and--prolog, e.g. {{xhtml}}"))
   (case-lambda
    (() (display-content-type-&c.
         (default-content-type-&c.)))
@@ -185,6 +192,11 @@ anything to stderr goes in the server logs; while {{display-content-type-&c.}}
           (display-header "Location" location)))))
 
 (define display-status-&c.
+  @("Display the status, content-type and prolog."
+    (status "Status code, e.g. {{status-no-content}} or 204")
+    (content-type "Content-type, e.g. {{xhtml}}")
+    (rest "Optional arguments to the status, e.g. {{location}} in the
+case of 300"))
   (case-lambda
    (()
     (display-status-&c. (default-status)))
