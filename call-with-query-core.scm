@@ -95,6 +95,7 @@ anything to stderr goes in the server logs; while {{display-content-type-&c.}}
   '((text . "text/plain")
     (html . "text/html")
     (json . "application/json")
+    (pdf . "application/pdf")
     (png . "image/png")))
 
 (define default-content-type
@@ -162,6 +163,10 @@ anything to stderr goes in the server logs; while {{display-content-type-&c.}}
     (png
      . ,(lambda ()
           (display-content-type 'png)
+          (display-eol)))
+    (pdf
+     . ,(lambda ()
+          (display-content-type 'pdf)
           (display-eol)))))
 
 ;; Content-type, eol, prolog, doctype, etc.
