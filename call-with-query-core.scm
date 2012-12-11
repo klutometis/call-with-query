@@ -169,7 +169,7 @@ anything to stderr goes in the server logs; while {{display-content-type-&c.}}
   @("Write the content-type headers and e.g. XML prolog (if
 necessary); do not, however, write the status (see {{display-status}}
 and {{display-status-&c.}})."
-    "Valid content-types are {{xhtml}}, {{html}}, {{text}}, {{json}},{{png}}."
+    "Valid content-types are {{xhtml}}, {{html}}, {{text}}, {{json}}, {{png}}."
     (content-type-&c. "The content-type-and--prolog, e.g. {{xhtml}}"))
   (case-lambda
    (() (display-content-type-&c.
