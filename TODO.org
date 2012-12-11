@@ -1,3 +1,5 @@
+* TODO Fullbring the docs.
+  Need =display-content-type-&c.=, &c.
 * TODO tests
 * TODO cookies
   =(set-cookie! key value #!key comment domain max-age path secure
