@@ -15,6 +15,8 @@
 
   Maybe this routing model can be a consumer of =call-with-query=;
   e.g. =web-lambda=, =define-route=?
+
+  No: =query-lambda=; nice!
 * TODO Fullbring the docs.
   Need =display-content-type-&c.=, &c.
 * TODO tests
