@@ -1,3 +1,17 @@
+* TODO Routing model
+  Or should this be a separate egg?
+
+  Might be nice to do e.g.:
+
+  #+BEGIN_SRC scheme
+    (define-route (new game-id method: get)
+      ...)
+    
+    (define-route (new (int game-id) method: get)
+      ...)
+  #+END_SRC
+
+  And do some validation; in addition to merely writing lambdas.
 * TODO Fullbring the docs.
   Need =display-content-type-&c.=, &c.
 * TODO tests
