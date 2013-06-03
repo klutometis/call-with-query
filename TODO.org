@@ -12,6 +12,9 @@
   #+END_SRC
 
   And do some validation; in addition to merely writing lambdas.
+
+  Maybe this routing model can be a consumer of =call-with-query=;
+  e.g. =web-lambda=, =define-route=?
 * TODO Fullbring the docs.
   Need =display-content-type-&c.=, &c.
 * TODO tests
