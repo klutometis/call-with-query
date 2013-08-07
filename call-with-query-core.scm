@@ -96,7 +96,8 @@ anything to stderr goes in the server logs; while {{display-content-type-&c.}}
     (html . "text/html")
     (json . "application/json")
     (pdf . "application/pdf")
-    (png . "image/png")))
+    (png . "image/png")
+    (xml . "text/xml")))
 
 (define default-content-type
   (make-parameter 'text))
@@ -147,6 +148,11 @@ anything to stderr goes in the server logs; while {{display-content-type-&c.}}
           (display-eol)
           (display-xml-prolog)
           (display-doctype)))
+    (xml
+     . ,(lambda ()
+          (display-content-type 'xml)
+          (display-eol)
+          (display-xml-prolog)))
     (html
      . ,(lambda ()
           (display-content-type 'html)
@@ -174,7 +180,7 @@ anything to stderr goes in the server logs; while {{display-content-type-&c.}}
   @("Write the content-type headers and e.g. XML prolog (if
 necessary); do not, however, write the status (see {{display-status}}
 and {{display-status-&c.}})."
-    "Valid content-types are {{xhtml}}, {{html}}, {{text}}, {{json}}, {{png}}."
+    "Valid content-types are {{xhtml}}, {{html}}, {{text}}, {{json}}, {{png}}, {{xml}}."
     (content-type-&c. "The content-type-and--prolog, e.g. {{xhtml}}"))
   (case-lambda
    (() (display-content-type-&c.
