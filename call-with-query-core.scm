@@ -1,10 +1,3 @@
-@(egg "call-with-query")
-@(description "A reasonable abstraction around e.g. fastcgi server-invocations: ports, environment, query")
-@(author "Peter Danenberg")
-@(username "klutometis")
-@(email "pcd@roxygen.org")
-@(noop)
-
 @(heading "Motivation")
 
 @(text "Using FastCGI is relatively pain-in-the-ass; take this
