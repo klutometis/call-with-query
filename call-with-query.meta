@@ -1,4 +1,4 @@
-((egg "call-with-query.egg")
+((egg "call-with-query")
  (license "GPL-3")
  (category web)
  (needs alist-lib
