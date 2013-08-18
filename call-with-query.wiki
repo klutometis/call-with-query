@@ -1,0 +1,222 @@
+== call-with-query
+
+A reasonable abstraction around e.g. fastcgi server-invocations: ports, environment, query
+[[toc:]]
+=== Motivation
+Using FastCGI is relatively pain-in-the-ass; take this
+contrived example, for instance, where we'd like create a server that
+exports a database (given as a post-parameter) as JSON:
+
+
+<enscript highlight="scheme">(fcgi-dynamic-server-accept-loop
+  (lambda (in out err env)
+    (out "Content-type: application/json\r\n\r\n")
+    (let* ((post-data (form-urldecode (fcgi-get-post-data in env)))
+           (database
+             (alist-ref/default post-data 'database (default-database))))
+      (out (with-output-to-string
+             (lambda () (json-write (database->json database))))))))
+</enscript>
+With {{call-with-query}}, however, we can do something like this:
+
+
+<enscript highlight="scheme">(call-with-dynamic-fastcgi-query
+  (lambda (query)
+    (display-content-type-&c. 'json)
+    (json-write
+      (database->json (query-any query 'database (default-database))))))
+</enscript>
+Anything written to stdout appears in the request;
+anything to stderr goes in the server logs; while {{display-content-type-&c.}}
+ takes care of the HTTP headers.
+
+
+=== Documentation
+==== {{display-content-type-&c.}}
+<procedure>(display-content-type-&c.) → unspecified</procedure>
+<procedure>(display-content-type-&c. content-type-&c.) → unspecified</procedure>
+Write the content-type headers and e.g. XML prolog (if
+necessary); do not, however, write the status (see {{display-status}}
+and {{display-status-&c.}}).
+
+Valid content-types are {{xhtml}}, {{html}}, {{text}}, {{json}}, {{png}}, {{xml}}.
+; content-type-&c. : The content-type-and--prolog, e.g. {{xhtml}}
+<enscript highlight="scheme">(define display-content-type-&c.
+  (case-lambda
+    (() (display-content-type-&c. (default-content-type-&c.)))
+    ((content-type-&c.) ((alist-ref content-type-&cs. content-type-&c.)))))
+</enscript>
+==== {{display-status-&c.}}
+<procedure>(display-status-&c.) → unspecified</procedure>
+<procedure>(display-status-&c. status) → unspecified</procedure>
+<procedure>(display-status-&c. status content-type . rest) → unspecified</procedure>
+Display the status, content-type and prolog.
+; status : Status code, e.g. {{status-no-content}} or 204
+; content-type : Content-type, e.g. {{xhtml}}
+; rest : Optional arguments to the status, e.g. {{location}} in the case of 300
+<enscript highlight="scheme">(define display-status-&c.
+  (case-lambda
+    (() (display-status-&c. (default-status)))
+    ((status) (display-status-&c. status (default-content-type)))
+    ((status content-type . rest)
+     (display-status status)
+     (apply (alist-ref/default statuses status void) rest)
+     (display-content-type-&c. content-type))))
+</enscript>
+==== {{query-client-any}}
+<procedure>(query-client-any query key) → string</procedure>
+<procedure>(query-client-any query key default) → string</procedure>
+Return the first client parameter (e.g. {get,post,cookie}-parameter)
+corresponding to the key.
+; key : The key whose value to extract
+; default : A default value if {{key}} doesn't exist
+<enscript highlight="scheme">(define query-client-any
+  (case-lambda
+    ((query key) (alist-any (query-client query) key))
+    ((query key default) (alist-any (query-client query) key default))))
+</enscript>
+==== {{query-client-all}}
+<procedure>(query-client-all query key) → list</procedure>
+<procedure>(query-client-all query key default) → list</procedure>
+Return a list of client parameters (e.g. {get,post,cookie}-parameters) 
+corresponding to the key.
+; key : The key whose value to extract
+; default : A default value if {{key}} doesn't exist
+<enscript highlight="scheme">(define query-client-all
+  (case-lambda
+    ((query key) (alist-all (query-client query) key))
+    ((query key default) (alist-all (query-client query) key default))))
+</enscript>
+==== {{query-server-any}}
+<procedure>(query-server-any query key) → string</procedure>
+<procedure>(query-server-any query key default) → string</procedure>
+Return the first client parameter (e.g.
+environment-variable) corresponding to the key.
+; key : The key whose value to extract
+; default : A default value if {{key}} doesn't exist
+<enscript highlight="scheme">(define query-server-any
+  (case-lambda
+    ((query key) (alist-any (query-server query) key))
+    ((query key default) (alist-any (query-server query) key default))))
+</enscript>
+==== {{query-server-all}}
+<procedure>(query-server-all query key) → list</procedure>
+<procedure>(query-server-all query key default) → list</procedure>
+Return a list of client parameters (e.g.
+environment-variables) corresponding to the key.
+; key : The key whose value to extract
+; default : A default value if {{key}} doesn't exist
+<enscript highlight="scheme">(define query-server-all
+  (case-lambda
+    ((query key) (alist-all (query-server query) key))
+    ((query key default) (alist-all (query-server query) key default))))
+</enscript>
+==== {{query-any}}
+<procedure>(query-any query key) → string</procedure>
+<procedure>(query-any query key default) → string</procedure>
+Return the first client or server parameter (see above) corresponding to the key.
+; key : The key whose value to extract
+; default : A default value if {{key}} doesn't exist
+<enscript highlight="scheme">(define query-any
+  (case-lambda
+    ((query key) (alist-any (query-promiscuous query) key))
+    ((query key default) (alist-any (query-promiscuous query) key default))))
+</enscript>
+==== {{query-all}}
+<procedure>(query-all query key) → list</procedure>
+<procedure>(query-all query key default) → list</procedure>
+Return a list of client or server parameters (see above) corresponding to the key.
+; key : The key whose value to extract
+; default : A default value if {{key}} doesn't exist
+<enscript highlight="scheme">(define query-all
+  (case-lambda
+    ((query key) (alist-all (query-promiscuous query) key))
+    ((query key default) (alist-all (query-promiscuous query) key default))))
+</enscript>
+==== {{call-with-dynamic-fastcgi-query}}
+<procedure>(call-with-dynamic-fastcgi-query quaerendum) → unspecified</procedure>
+Start a dynamic FastCGI server where output is bound to stdout;
+and where a monadic function taking a query-record is called for every
+request.
+; quaerendum : A monadic function receiving a query parameter
+<enscript highlight="scheme">(define (call-with-dynamic-fastcgi-query quaerendum)
+  (fcgi-dynamic-server-accept-loop
+    (lambda (in out err env)
+      (let ((environment
+              (map (match-lambda
+                     ((key . value) (cons (env-string->symbol key) value)))
+                   (env)))
+            (cookies
+              (form-urldecode
+                (let ((cookies
+                        (string-delete
+                          char-set:whitespace
+                          (env "HTTP_COOKIE" ""))))
+                  (and (not (string-null? cookies)) cookies))))
+            (cookies2
+              (form-urldecode
+                (let ((cookies
+                        (string-delete
+                          char-set:whitespace
+                          (env "HTTP_COOKIE2" ""))))
+                  (and (not (string-null? cookies)) cookies))))
+            (post-data (form-urldecode (fcgi-get-post-data in env)))
+            (query (form-urldecode
+                     (let ((query (env "QUERY_STRING")))
+                       (and (not (string-null? query)) query)))))
+        (parameterize
+          ((current-output-port
+             (make-output-port (lambda (scribendum) (out scribendum)) void))
+           (current-error-port
+             (make-output-port (lambda (errandum) (err errandum)) void)))
+          (quaerendum
+            (make-query
+              environment
+              (append cookies cookies2 post-data query))))))))
+</enscript>
+===== Examples
+An authorization server
+ (call-with-auth-db 
+   (lambda (connection)
+     (call-with-dynamic-fastcgi-query 
+       (lambda (query)
+         (let ((user (query-server-any query 'remote-user))
+               (password (query-server-any query 'remote-passwd)))
+           (let ((status
+                  (if (valid? connection user password "physician")
+                      status-ok
+                      status-unauthorized)))
+             (display-status-&c. status)))))))
+=== About this egg
+
+==== Author
+
+[[/users/klutometis|Peter Danenberg]]
+
+==== License
+GPL-3
+==== Dependencies
+* [[alist-lib]]
+* [[args]]
+* [[call-with-environment-variables]]
+* [[cock]]
+* [[define-record-and-printer]]
+* [[fastcgi]]
+* [[format]]
+* [[matchable]]
+* [[regex]]
+* [[setup-helper]]
+* [[uri-common]]
+
+==== Versions
+; 0.1 : First release
+; 0.2 : Record-printer for queries
+; 0.2.1 : JSON and PNG
+; 0.2.2 : HTML5
+; 0.2.3 : Remove dependency on regex.
+; 0.2.4 : Fix irregex.
+; 0.2.5 : Add pdf.
+; 0.2.6 : Add XML.
+==== Colophon
+
+Documented by [[/egg/cock|cock]].
