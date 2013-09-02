@@ -8,5 +8,7 @@
  (extension-version "0.2.6")
  compile-options: '(-X cock))
 
-(run (cock -o call-with-query.wiki call-with-query-core.scm "||"
-           echo cock-utils not "installed:" not creating documentation))
+(handle-exceptions exn
+  (warning "Not generating documentation")
+  (include "setup-helper-cock")
+  (run-cock -o call-with-query.wiki call-with-query-core.scm))
