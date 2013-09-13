@@ -1,3 +1,13 @@
+* TODO Improve error output
+  There are cases where the job silently fails with an error code of
+  70; if this can’t be fixed, possibly a death-blow to this
+  development model.
+
+  Only problem with e.g. =mod_chicken=, is that it must be absolutely
+  faultless or risk exploit.
+* TODO Log to a separate file?
+  Logging to Apache’s log-file is messy: have to unread the prefix;
+  log to a separate file.
 * TODO Routing model
   Or should this be a separate egg?
 
