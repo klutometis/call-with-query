@@ -1,14 +1,10 @@
-;;; -*- Hen -*-
-(include "setup-helper")
+(use cock setup-helper-mod)
 
 (verify-extension-name "call-with-query")
 
 (setup-shared-extension-module
  'call-with-query
- (extension-version "0.2.6")
+ (extension-version "0.2.7")
  compile-options: '(-X cock))
 
-(handle-exceptions exn
-  (warning "Not generating documentation")
-  (include "setup-helper-cock")
-  (run-cock -o call-with-query.wiki call-with-query-core.scm))
+(run-cock -o call-with-query.wiki call-with-query-core.scm)
