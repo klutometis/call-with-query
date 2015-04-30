@@ -40,7 +40,7 @@ necessary); do not, however, write the status (see {{display-status}}
 and {{display-status-&c.}}).
 
 Valid content-types are {{xhtml}}, {{html}}, {{text}}, {{json}}, {{png}}, {{xml}}.
-; content-type-&c. : The content-type-and--prolog, e.g. {{xhtml}}
+; {{content-type-&c.}} : The content-type-and--prolog, e.g. {{xhtml}}
 <enscript highlight="scheme">(define display-content-type-&c.
   (case-lambda
     (() (display-content-type-&c. (default-content-type-&c.)))
@@ -51,9 +51,9 @@ Valid content-types are {{xhtml}}, {{html}}, {{text}}, {{json}}, {{png}}, {{xml}
 <procedure>(display-status-&c. status) → unspecified</procedure>
 <procedure>(display-status-&c. status content-type . rest) → unspecified</procedure>
 Display the status, content-type and prolog.
-; status : Status code, e.g. {{status-no-content}} or 204
-; content-type : Content-type, e.g. {{xhtml}}
-; rest : Optional arguments to the status, e.g. {{location}} in the case of 300
+; {{status}} : Status code, e.g. {{status-no-content}} or 204
+; {{content-type}} : Content-type, e.g. {{xhtml}}
+; {{rest}} : Optional arguments to the status, e.g. {{location}} in the case of 300
 <enscript highlight="scheme">(define display-status-&c.
   (case-lambda
     (() (display-status-&c. (default-status)))
@@ -68,8 +68,8 @@ Display the status, content-type and prolog.
 <procedure>(query-client-any query key default) → string</procedure>
 Return the first client parameter (e.g. {get,post,cookie}-parameter)
 corresponding to the key.
-; key : The key whose value to extract
-; default : A default value if {{key}} doesn't exist
+; {{key}} : The key whose value to extract
+; {{default}} : A default value if {{key}} doesn't exist
 <enscript highlight="scheme">(define query-client-any
   (case-lambda
     ((query key) (alist-any (query-client query) key))
@@ -80,8 +80,8 @@ corresponding to the key.
 <procedure>(query-client-all query key default) → list</procedure>
 Return a list of client parameters (e.g. {get,post,cookie}-parameters) 
 corresponding to the key.
-; key : The key whose value to extract
-; default : A default value if {{key}} doesn't exist
+; {{key}} : The key whose value to extract
+; {{default}} : A default value if {{key}} doesn't exist
 <enscript highlight="scheme">(define query-client-all
   (case-lambda
     ((query key) (alist-all (query-client query) key))
@@ -92,8 +92,8 @@ corresponding to the key.
 <procedure>(query-server-any query key default) → string</procedure>
 Return the first client parameter (e.g.
 environment-variable) corresponding to the key.
-; key : The key whose value to extract
-; default : A default value if {{key}} doesn't exist
+; {{key}} : The key whose value to extract
+; {{default}} : A default value if {{key}} doesn't exist
 <enscript highlight="scheme">(define query-server-any
   (case-lambda
     ((query key) (alist-any (query-server query) key))
@@ -104,8 +104,8 @@ environment-variable) corresponding to the key.
 <procedure>(query-server-all query key default) → list</procedure>
 Return a list of client parameters (e.g.
 environment-variables) corresponding to the key.
-; key : The key whose value to extract
-; default : A default value if {{key}} doesn't exist
+; {{key}} : The key whose value to extract
+; {{default}} : A default value if {{key}} doesn't exist
 <enscript highlight="scheme">(define query-server-all
   (case-lambda
     ((query key) (alist-all (query-server query) key))
@@ -115,8 +115,8 @@ environment-variables) corresponding to the key.
 <procedure>(query-any query key) → string</procedure>
 <procedure>(query-any query key default) → string</procedure>
 Return the first client or server parameter (see above) corresponding to the key.
-; key : The key whose value to extract
-; default : A default value if {{key}} doesn't exist
+; {{key}} : The key whose value to extract
+; {{default}} : A default value if {{key}} doesn't exist
 <enscript highlight="scheme">(define query-any
   (case-lambda
     ((query key) (alist-any (query-promiscuous query) key))
@@ -126,8 +126,8 @@ Return the first client or server parameter (see above) corresponding to the key
 <procedure>(query-all query key) → list</procedure>
 <procedure>(query-all query key default) → list</procedure>
 Return a list of client or server parameters (see above) corresponding to the key.
-; key : The key whose value to extract
-; default : A default value if {{key}} doesn't exist
+; {{key}} : The key whose value to extract
+; {{default}} : A default value if {{key}} doesn't exist
 <enscript highlight="scheme">(define query-all
   (case-lambda
     ((query key) (alist-all (query-promiscuous query) key))
@@ -138,7 +138,7 @@ Return a list of client or server parameters (see above) corresponding to the ke
 Start a dynamic FastCGI server where output is bound to stdout;
 and where a monadic function taking a query-record is called for every
 request.
-; quaerendum : A monadic function receiving a query parameter
+; {{quaerendum}} : A monadic function receiving a query parameter
 <enscript highlight="scheme">(define (call-with-dynamic-fastcgi-query quaerendum)
   (fcgi-dynamic-server-accept-loop
     (lambda (in out err env)
@@ -187,6 +187,31 @@ An authorization server
                       status-ok
                       status-unauthorized)))
              (display-status-&c. status)))))))
+==== {{call-with-cgi-query}}
+<procedure>(call-with-cgi-query quaerendum) → unspecified</procedure>
+Gather parameters (including post-variables, query-variables,
+cookies, server-variables) into an association-list when called as a
+CGI program.
+; {{quaerendum}} : A monadic function receiving a query parameter
+<enscript highlight="scheme">(define (call-with-cgi-query quaerendum)
+  (let ((environment
+          (alist-map
+            (lambda (key value) (cons (env-string->symbol key) value))
+            (get-environment-variables))))
+    (quaerendum
+      (make-query
+        environment
+        (remove-null-artifacts
+          (append
+            (form-urldecode-environment environment 'http-cookie)
+            (form-urldecode-environment environment 'http-cookie2)
+            (form-urldecode-environment environment 'query-string)
+            (form-urldecode-with-separator (read-all))))))))
+</enscript>
+===== Examples
+Prints out the environment.
+ (call-with-cgi-query 
+   (lambda (query) (display-content-type-&c. 'text) (display query)))
 === About this egg
 
 ==== Author
@@ -201,6 +226,7 @@ GPL-3
 * [[args]]
 * [[call-with-environment-variables]]
 * [[cock]]
+* [[debug]]
 * [[define-record-and-printer]]
 * [[fastcgi]]
 * [[format]]
@@ -210,14 +236,17 @@ GPL-3
 * [[uri-common]]
 
 ==== Versions
-; 0.1 : First release
-; 0.2 : Record-printer for queries
-; 0.2.1 : JSON and PNG
-; 0.2.2 : HTML5
-; 0.2.3 : Remove dependency on regex.
-; 0.2.4 : Fix irregex.
-; 0.2.5 : Add pdf.
-; 0.2.6 : Add XML.
+; [[https://github.com/klutometis/call-with-query/releases/tag/0.1|0.1]] : First release
+; [[https://github.com/klutometis/call-with-query/releases/tag/0.2|0.2]] : Record-printer for queries
+; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.1|0.2.1]] : JSON and PNG
+; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.2|0.2.2]] : HTML5
+; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.3|0.2.3]] : Remove dependency on regex.
+; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.4|0.2.4]] : Fix irregex.
+; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.5|0.2.5]] : Add pdf.
+; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.6|0.2.6]] : Add XML.
+; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.7|0.2.7]] : Remove the dependency on setup-helper-cock.
+; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.8|0.2.8]] : Remove debug.
+; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.9|0.2.9]] : Add call-with-cgi-query.
 ==== Colophon
 
 Documented by [[/egg/cock|cock]].
