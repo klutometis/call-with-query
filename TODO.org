@@ -1,3 +1,5 @@
+* TODO Also munge the client-keys?
+  By e.g. downcasing and converting underscores to dashes?
 * TODO Improve error output
   There are cases where the job silently fails with an error code of
   70; if this can’t be fixed, possibly a death-blow to this
