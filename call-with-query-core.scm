@@ -374,6 +374,14 @@ request."
                                          post-data
                                          query))))))))
 
+(define (remove-null-artifacts alist)
+  (delete '(|| . #t) alist))
+
+(define separator (make-parameter "&; \n"))
+
+(define (form-urldecode-with-separator string)
+  (form-urldecode string separator: (separator)))
+
 (define (form-urldecode-environment environment key)
   ;; Add space to the separators here to avoid the situation where
   ;; key-values are prepended by spaces; see e.g.
@@ -381,7 +389,7 @@ request."
   ;;
   ;; Is this legitimate in the general case, though? Everything
   ;; (including cookies) should be url-escaped.
-  (form-urldecode (alist-ref/default environment key "") separator: "&; "))
+  (form-urldecode-with-separator (alist-ref/default environment key "")))
 
 (define (call-with-cgi-query quaerendum)
   @("Gather parameters (including post-variables, query-variables,
@@ -402,7 +410,8 @@ CGI program."
     (quaerendum
      (make-query
       environment
-      (append (form-urldecode-environment environment 'http-cookie)
-              (form-urldecode-environment environment 'http-cookie2)
-              (form-urldecode-environment environment 'query-string)
-              (form-urldecode (read-all)))))))
+      (remove-null-artifacts
+       (append (form-urldecode-environment environment 'http-cookie)
+               (form-urldecode-environment environment 'http-cookie2)
+               (form-urldecode-environment environment 'query-string)
+               (form-urldecode-with-separator (read-all))))))))

@@ -74,6 +74,7 @@
  (import scheme chicken posix)
 
  (use alist-lib
+      debug
       define-record-and-printer
       defstruct
       fastcgi
