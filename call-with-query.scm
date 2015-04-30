@@ -1,6 +1,7 @@
 (module
  call-with-query
  (call-with-dynamic-fastcgi-query
+  call-with-cgi-query
   make-query
   ;; query->alist
   query-client
@@ -83,6 +84,7 @@
       srfi-1
       srfi-13
       srfi-14
-      uri-common)
+      uri-common
+      utils)
 
  (include "call-with-query-core.scm"))
