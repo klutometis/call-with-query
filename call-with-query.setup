@@ -4,7 +4,7 @@
 
 (setup-shared-extension-module
  'call-with-query
- (extension-version "0.2.8")
+ (extension-version "0.2.9")
  compile-options: '(-X cock))
 
 (run-cock -o call-with-query.wiki call-with-query-core.scm)
