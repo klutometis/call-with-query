@@ -24,7 +24,7 @@ exports a database (given as a post-parameter) as JSON:")
 
 @(text "Anything written to stdout appears in the request;
 anything to stderr goes in the server logs; while {{display-content-type-&c.}}
- takes care of the HTTP headers.")
+takes care of the HTTP headers.")
 
 @(heading "Documentation")
 
