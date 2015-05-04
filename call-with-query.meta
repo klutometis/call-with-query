@@ -4,11 +4,11 @@
  (needs alist-lib
         args
         call-with-environment-variables
-        cock
         debug
         define-record-and-printer
         fastcgi
         format
+        (hahn "0.9.3")
         matchable
         regex
         setup-helper

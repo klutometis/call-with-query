@@ -1,10 +1,10 @@
-(use cock setup-helper-mod)
+(use hahn setup-helper-mod)
 
 (verify-extension-name "call-with-query")
 
 (setup-shared-extension-module
  'call-with-query
- (extension-version "0.2.10")
- compile-options: '(-X cock))
+ (extension-version "0.2.11")
+ compile-options: '(-X hahn))
 
-(run-cock -o call-with-query.wiki call-with-query-core.scm)
+(run-hahn -o call-with-query.wiki call-with-query-core.scm)

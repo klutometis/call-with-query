@@ -28,7 +28,7 @@ With {{call-with-query}}, however, we can do something like this:
 </enscript>
 Anything written to stdout appears in the request;
 anything to stderr goes in the server logs; while {{display-content-type-&c.}}
- takes care of the HTTP headers.
+takes care of the HTTP headers.
 
 
 === Documentation
@@ -225,11 +225,11 @@ GPL-3
 * [[alist-lib]]
 * [[args]]
 * [[call-with-environment-variables]]
-* [[cock]]
 * [[debug]]
 * [[define-record-and-printer]]
 * [[fastcgi]]
 * [[format]]
+* [[(hahn 0.9.3)]]
 * [[matchable]]
 * [[regex]]
 * [[setup-helper]]
@@ -247,6 +247,7 @@ GPL-3
 ; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.7|0.2.7]] : Remove the dependency on setup-helper-cock.
 ; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.8|0.2.8]] : Remove debug.
 ; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.9|0.2.9]] : Add call-with-cgi-query.
+; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.10|0.2.10]] : Remove null-artifacts.
 ==== Colophon
 
-Documented by [[/egg/cock|cock]].
+Documented by [[/egg/hahn|hahn]].
