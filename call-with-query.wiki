@@ -229,7 +229,7 @@ GPL-3
 * [[define-record-and-printer]]
 * [[fastcgi]]
 * [[format]]
-* [[(hahn 0.9.3)]]
+* [[hahn]]
 * [[matchable]]
 * [[regex]]
 * [[setup-helper]]
@@ -248,6 +248,7 @@ GPL-3
 ; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.8|0.2.8]] : Remove debug.
 ; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.9|0.2.9]] : Add call-with-cgi-query.
 ; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.10|0.2.10]] : Remove null-artifacts.
+; [[https://github.com/klutometis/call-with-query/releases/tag/0.2.11|0.2.11]] : Use hahn.
 ==== Colophon
 
 Documented by [[/egg/hahn|hahn]].
